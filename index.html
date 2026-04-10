@@ -3,63 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sportlink</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<title>sky sports</title>
 
 <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.16.2/dist/shaka-player.ui.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shaka-player@4.16.2/dist/controls.css"/>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0a0f;color:#fff;font-family:'Rajdhani',sans-serif}
+html,body{
+  margin:0;
+  height:100%;
+  background:#000;
+  overflow:hidden;
+}
 
-/* HEADER */
-header{background:#111;border-bottom:2px solid #e8002d;padding:12px 20px;display:flex;justify-content:space-between;align-items:center}
-.logo{font-family:'Bebas Neue';font-size:26px;letter-spacing:3px}
-.logo span{color:#e8002d}
-
-/* PLAYER */
-main{display:flex;justify-content:center;padding:20px}
-.player-frame{
-width:100%;
-max-width:1000px;
-aspect-ratio:16/9;
-background:#000;
-border-radius:10px;
-overflow:hidden;
-position:relative;
+#player-container{
+  width:100%;
+  height:100%;
 }
 
 video{
-width:100%;
-height:100%;
-object-fit:contain;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:#000;
 }
-
-/* FOOTER */
-footer{text-align:center;padding:15px;color:#888;font-size:13px}
 </style>
 </head>
 
 <body>
 
-<header>
-  <div class="logo">Sport<span>link</span></div>
-  <div>LIVE 🔴</div>
-</header>
-
-<main>
-  <div class="player-frame">
-    <div id="player-container" style="width:100%;height:100%;">
-      <video id="video" autoplay muted playsinline></video>
-    </div>
-  </div>
-</main>
-
-<footer>
-  © 2026 Sportlink — All rights reserved
-</footer>
+<div id="player-container">
+  <video id="video" autoplay muted playsinline></video>
+</div>
 
 <script>
 (async function(){
@@ -80,7 +55,7 @@ const container = document.getElementById("player-container");
 const player = new shaka.Player();
 await player.attach(video);
 
-// UI
+// Simple controls
 const ui = new shaka.ui.Overlay(player, container, video);
 ui.configure({
   controlPanelElements:[
@@ -103,7 +78,7 @@ player.configure({
   }
 });
 
-// COOKIE FETCH
+// Cookie fetch
 let cookieValue = "";
 try{
   const res = await fetch(CONFIG.cookieUrl);
@@ -111,7 +86,7 @@ try{
   cookieValue = data.cookie || "";
 }catch(e){}
 
-// APPLY HEADERS
+// Apply headers
 if(cookieValue){
   player.getNetworkingEngine().registerRequestFilter((type,request)=>{
     request.headers["Cookie"] = cookieValue;
@@ -119,7 +94,7 @@ if(cookieValue){
   });
 }
 
-// LOAD STREAM
+// Load stream
 try{
   await player.load(CONFIG.streamUrl);
   video.play().catch(()=>{});
@@ -127,14 +102,14 @@ try{
   console.log("Stream error", e);
 }
 
-// AUTO RESUME
+// Auto resume
 setInterval(()=>{
   if(video.paused && video.readyState>2){
     video.play().catch(()=>{});
   }
 },3000);
 
-// AUTO UNMUTE
+// Auto unmute
 document.addEventListener("click",()=>{
   video.muted=false;
 },{once:true});
